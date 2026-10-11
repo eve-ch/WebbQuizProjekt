@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router";
+import type {QuizQuestion, UserAnswer, QuizContextValue,} from "./quiz-types";
 
 function App() {
-  return (
+    const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+    const [answers, setAnswers] = useState<UserAnswer[]>([]);
 
+    const context: QuizContextValue = {questions, answers, setQuestions, setAnswers,};
+
+    return (
       <div>
         <h1>Quizappen</h1>
 
@@ -16,7 +21,7 @@ function App() {
         </nav>
 
         <main>
-          <Outlet/>
+          <Outlet context={context}/>
         </main>
 
       </div>

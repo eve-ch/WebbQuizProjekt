@@ -31,9 +31,9 @@ export type QuizApiResponse = {
 
 // Data och funktioner som App delar med undersidor
 export type QuizContextValue = {
-    questions: Question[];
+    questions: QuizQuestion[];
     answers: UserAnswer[];
-    setQuestions: (newQuestions: Question[]) => void;
+    setQuestions: (newQuestions: QuizQuestion[]) => void;
     setAnswers: (newAnswers: UserAnswer[]) => void;
 };
 
