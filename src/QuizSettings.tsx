@@ -3,8 +3,11 @@ import {Button} from "@/components/ui/button";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Card, CardHeader, CardTitle,} from "@/components/ui/card";
 
-import type {Category, QuizOptions} from "./quiz-types";
-import {useFetchCategories} from "./fetchQuestions";
+import type {Category, QuizOptions, QuizContextValue} from "./quiz-types";
+import {useFetchCategories, fetchQuestions} from "./fetchQuestions";
+
+import { useOutletContext } from "react-router";
+import { useNavigate } from "react-router";
 
 //Ett alternativ i formuläret
 type SelectOption = {
@@ -47,9 +50,18 @@ function QuizSettings() {
     const [difficulty, setDifficulty] = useState<SelectOption | null>(null);
     const [showError, setShowError] = useState(false);
 
+    //uppdatera state i App
+    const { setQuestions, setAnswers } = useOutletContext<QuizContextValue>();
 
-    function handleSubmit(event: React.SubmitEvent){
+    const navigate = useNavigate();
+    //hanterar ladning och hämtningsfel i formuläret
+    const [isLoading, setIsLoading] = useState(false);
+    const [fetchError, setFetchError] = useState<string | null>(null);
+
+   async function handleSubmit(event: React.SubmitEvent){
         event.preventDefault(); //hindra formuläret att ladda om sidan
+
+        if(isLoading) return;
 
         //alla tre fält måste vara valda
         if(!category|| !amount || !difficulty){
@@ -78,8 +90,25 @@ function QuizSettings() {
         };
 
         setShowError(false);
+        setFetchError(null);
+        setIsLoading(true);
 
-        console.log("Valda inställningar:", quizOptions);
+        try {
+            const newQuestions = await fetchQuestions(quizOptions);
+
+            setQuestions(newQuestions);
+            setAnswers([]);
+
+            navigate("/quiz");
+        } catch (error) {
+            setFetchError(
+                error instanceof Error
+                    ? error.message
+                    : "Frågorna kunde inte hämtas. Försök igen."
+            );
+        } finally {
+            setIsLoading(false);
+        }
     }
     return (
     <Card className="mx-auto mt-4 w-full max-w-lg p-6">
@@ -137,9 +166,11 @@ function QuizSettings() {
                     svårighetsgrad.
                 </p>
             )}
-
-            <Button type="submit" className="w-full">
-                Starta quiz
+            {fetchError && (
+                <p role="alert">{fetchError}</p>
+            )}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Hämtar frågor..." : "Starta quiz"}
             </Button>
         </form>
     </Card>
