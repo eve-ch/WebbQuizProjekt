@@ -1,3 +1,10 @@
+// Användarens val i startformuläret
+export type QuizOptions = {
+    category: number | null;
+    difficulty: "easy" | "medium" | "hard";
+    amount: number;
+};
+
 // De fält vi behöver från en fråga i API
 export type Question = {
     question: string;
@@ -5,16 +12,9 @@ export type Question = {
     incorrect_answers: string[];
 };
 
-// En bearbetad fråga som används i appen
+// En fråga med färdigblandade svarsalternativ
 export type QuizQuestion = Question & {
     options: string[]; // Alla svarsalternativ i blandad ordning
-};
-
-// Användarens val i startformuläret
-export type QuizOptions = {
-    category: number | null;
-    difficulty: "easy" | "medium" | "hard";
-    amount: number;
 };
 
 // Ett svar som användaren har lämnat
@@ -23,7 +23,7 @@ export type UserAnswer = {
     selectedAnswer: string;
 };
 
-// Hela svaret från API
+// Svaret från API
 export type QuizApiResponse = {
     response_code: number;
     results: Question[];
@@ -35,4 +35,9 @@ export type QuizContextValue = {
     answers: UserAnswer[];
     setQuestions: (newQuestions: Question[]) => void;
     setAnswers: (newAnswers: UserAnswer[]) => void;
+};
+
+export type Category = {
+    id: number;
+    name: string;
 };
