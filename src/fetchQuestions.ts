@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Category } from "./quiz-types";
+import type { Category, Question,QuizOptions, QuizApiResponse } from "./quiz-types";
 
 async function safeFetchJson<T>(url: string | URL, init?: RequestInit) {
 
@@ -28,28 +28,45 @@ async function fetchCategories(url: string): Promise<Category[]> {
 // Kopplar hämtningen till React-state
 function useFetchCategories(url: string) {
     const [data, setData] = useState<Category[]>([]);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         let ignore = false;
-
-        fetchCategories(url)
-            .then(categories => {
+        fetchCategories(url).then(categories => {
                 if (!ignore) {
                     setData(categories);
-                    setError(null);
-                }
-            }).catch(() => {
-                if (!ignore) {
-                    setError("Kategorierna kunde inte hämtas.");
                 }
             });
-
         return () => {
             ignore = true;
         };
     }, [url]);
-
-    return { data, error };
+    return data;
 }
-export { safeFetchJson, fetchCategories, useFetchCategories };
+
+//retunerar frågelista från API:et
+async function fetchQuestions(settings: QuizOptions): Promise<Question[]> {
+    const url = new URL("https://opentdb.com/api.php");
+    // Inställningarna från formuläret lägger vi i addressen
+    url.searchParams.set("amount", String(settings.amount));
+    url.searchParams.set("difficulty", settings.difficulty);
+
+    // Bara frågor med flera svarsalternativ
+    url.searchParams.set("type", "multiple");
+    // null betyder alla kategorier: då utelämnar vi category
+    if (settings.category !== null) {
+        url.searchParams.set("category", String(settings.category));
+    }
+    const response = await safeFetchJson<QuizApiResponse>(url);
+
+    // API:et kan rapportera fel även när HTTP-anropet lyckas
+    if (response.response_code !== 0) {
+        throw new Error(
+            `Frågorna kunde inte hämtas. API-kod: ${response.response_code}`
+        );
+    }
+
+    return response.results;
+
+}
+
+export { safeFetchJson, fetchCategories, useFetchCategories, fetchQuestions};
