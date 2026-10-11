@@ -5,6 +5,11 @@ export type Question = {
     incorrect_answers: string[];
 };
 
+// En bearbetad fråga som används i appen
+export type QuizQuestion = Question & {
+    options: string[]; // Alla svarsalternativ i blandad ordning
+};
+
 // Användarens val i startformuläret
 export type QuizOptions = {
     category: number | null;
