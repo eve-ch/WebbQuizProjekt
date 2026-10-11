@@ -1,7 +1,31 @@
 import { useState } from "react";
 import { Link, Outlet } from "react-router";
+import type { QuizQuestion, UserAnswer } from "./quiz-types";
 
 function App() {
+    const [questions, setQuestions] = useState<QuizQuestion[]>([ {
+        question: "What does HTML stand for?",
+        correct_answer: "HyperText Markup Language",
+        incorrect_answers: [
+            "HighText Machine Language",
+            "HyperText Markdown Language",
+            "Home Tool Markup Language"
+        ],
+        options: [
+            "HighText Machine Language",
+            "HyperText Markup Language",
+            "Home Tool Markup Language",
+            "HyperText Markdown Language"
+        ]
+    },
+        {
+            question: "Which language is used to style web pages?",
+            correct_answer: "CSS",
+            incorrect_answers: ["HTML", "Python", "SQL"],
+            options: ["HTML", "CSS", "Python", "SQL"]
+        }]);
+    const [answers, setAnswers] = useState<UserAnswer[]>([]);
+
   return (
 
       <div>
@@ -16,7 +40,7 @@ function App() {
         </nav>
 
         <main>
-          <Outlet/>
+            <Outlet context={{ questions, answers, setQuestions, setAnswers }} />
         </main>
 
       </div>
