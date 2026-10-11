@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Category, Question,QuizOptions, QuizApiResponse } from "./quiz-types";
+import type { Category, QuizQuestion,QuizOptions, QuizApiResponse } from "./quiz-types";
 
 async function safeFetchJson<T>(url: string | URL, init?: RequestInit) {
 
@@ -44,7 +44,7 @@ function useFetchCategories(url: string) {
 }
 
 //retunerar frågelista från API:et
-async function fetchQuestions(settings: QuizOptions): Promise<Question[]> {
+async function fetchQuestions(settings: QuizOptions): Promise<QuizQuestion[]> {
     const url = new URL("https://opentdb.com/api.php");
     // Inställningarna från formuläret lägger vi i addressen
     url.searchParams.set("amount", String(settings.amount));
@@ -65,8 +65,27 @@ async function fetchQuestions(settings: QuizOptions): Promise<Question[]> {
         );
     }
 
-    return response.results;
+    return response.results.map(question => ({
+            ...question,
+            options: shuffleOptions([ //blanda lista och spara i options
+                question.correct_answer,
+                ...question.incorrect_answers,
+            ]),
+        }));
 
 }
 
+//Hjälp funktion för att blanda alternativen
+function shuffleOptions(options: string[]): string[] {
+    const shuffled = [...options];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+
+        const temporary = shuffled[i]!;
+        shuffled[i] = shuffled[j]!;
+        shuffled[j] = temporary;
+    }
+    return shuffled;
+}
 export { safeFetchJson, fetchCategories, useFetchCategories, fetchQuestions};
