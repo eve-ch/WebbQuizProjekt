@@ -34,7 +34,7 @@ const difficultyOptions: SelectOption[] = [
 function QuizSettings() {
 
     //hämtning sköts av hooken i fetchQuestions
-    const { data: categories, error: categoryError  } =
+    const categories =
         useFetchCategories("https://opentdb.com/api_category.php");
 
     const categoryOptions: SelectOption[] = [
@@ -87,74 +87,49 @@ function QuizSettings() {
             <CardTitle>Quizets inställningar</CardTitle>
         </CardHeader>
 
-        <form
-            noValidate
-            onSubmit={handleSubmit}
-            className="space-y-6"
-        >
-            <Select
-                value={category}
-                onValueChange={setCategory}
-            >
+        <form noValidate onSubmit={handleSubmit} className="space-y-6">
+            <Select value={category} onValueChange={setCategory}>
+
                 <SelectTrigger aria-label="Välj kategori">
                     <SelectValue placeholder="Välj kategori" />
                 </SelectTrigger>
 
                 <SelectContent>
                     {categoryOptions.map(option => (
-                        <SelectItem
-                            key={option.value}
-                            value={option}
-                        >
+                        <SelectItem key={option.value} value={option}>
                             {option.label}
                         </SelectItem>
                     ))}
                 </SelectContent>
             </Select>
 
-            <Select
-                value={amount}
-                onValueChange={setAmount}
-            >
+            <Select value={amount} onValueChange={setAmount}>
                 <SelectTrigger aria-label="Välj antal frågor">
                     <SelectValue placeholder="Välj antal frågor" />
                 </SelectTrigger>
 
                 <SelectContent>
                     {amountOptions.map(option => (
-                        <SelectItem
-                            key={option.value}
-                            value={option}
-                        >
+                        <SelectItem key={option.value} value={option}>
                             {option.label}
                         </SelectItem>
                     ))}
                 </SelectContent>
             </Select>
 
-            <Select
-                value={difficulty}
-                onValueChange={setDifficulty}
-            >
+            <Select value={difficulty} onValueChange={setDifficulty}>
                 <SelectTrigger aria-label="Välj svårighetsgrad">
                     <SelectValue placeholder="Välj svårighetsgrad" />
                 </SelectTrigger>
 
                 <SelectContent>
                     {difficultyOptions.map(option => (
-                        <SelectItem
-                            key={option.value}
-                            value={option}
-                        >
+                        <SelectItem key={option.value} value={option}>
                             {option.label}
                         </SelectItem>
                     ))}
                 </SelectContent>
             </Select>
-
-            {categoryError && (
-                <p role="alert">{categoryError}</p>
-            )}
 
             {showError && (
                 <p role="alert">
