@@ -43,6 +43,12 @@ function useFetchCategories(url: string) {
     return data;
 }
 
+function decodeText(text: string): string {
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = text;
+    return textarea.value;
+}
+
 //retunerar frågelista från API:et
 async function fetchQuestions(settings: QuizOptions): Promise<QuizQuestion[]> {
     const url = new URL("https://opentdb.com/api.php");
@@ -65,13 +71,21 @@ async function fetchQuestions(settings: QuizOptions): Promise<QuizQuestion[]> {
         );
     }
 
-    return response.results.map(question => ({
+    return response.results.map(question => {
+        const correctAnswer = decodeText(question.correct_answer);
+        const incorrectAnswers = question.incorrect_answers.map(decodeText);
+
+        return{
             ...question,
+            question: decodeText(question.question),
+            correct_answer: correctAnswer,
+            incorrect_answers: incorrectAnswers,
             options: shuffleOptions([ //blanda lista och spara i options
-                question.correct_answer,
-                ...question.incorrect_answers,
+                correctAnswer,
+                ...incorrectAnswers,
             ]),
-        }));
+        };
+        });
 
 }
 
