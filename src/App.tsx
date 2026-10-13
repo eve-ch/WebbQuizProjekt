@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Outlet } from "react-router";
+import { Link, Outlet, useLocation } from "react-router";
 import type { QuizQuestion, UserAnswer, QuizContextValue } from "./quiz-types";
 
 function App() {
@@ -7,23 +7,26 @@ function App() {
 
     const [answers, setAnswers] = useState<UserAnswer[]>([]);
 
-    const context: QuizContextValue = {
-        questions,
-        answers,
-        setQuestions,
-        setAnswers
-    };
+    const context: QuizContextValue = {questions, answers, setQuestions, setAnswers};
+
+    const location = useLocation();
+
+    function startSameQuiz(){
+        if(location.pathname !== "/quiz"){
+            setAnswers([]);
+        }
+    }
 
     return (
         <div>
-            <h1>Quizappen</h1>
+            <h1 className= "text-foreground">
+                Quiz App
+            </h1>
 
             <nav>
-                <Link to="/">Inställningar</Link>
-                {" | "}
-                <Link to="/quiz">Quiz</Link>
-                {" | "}
-                <Link to="/results">Resultat</Link>
+                <Link to="/"> Settings </Link>
+                <Link to="/quiz" onClick={startSameQuiz}> Quiz </Link>
+                <Link to="/results"> Result </Link>
             </nav>
 
             <main>

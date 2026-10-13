@@ -3,24 +3,19 @@ import {Button} from "@/components/ui/button";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Card, CardHeader, CardTitle,} from "@/components/ui/card";
 
-import type {Category, QuizOptions, QuizContextValue} from "./quiz-types";
+import type {Category, QuizOptions, QuizContextValue, SelectOption} from "./quiz-types";
 import {useFetchCategories, fetchQuestions} from "./fetchQuestions";
 
 import { useOutletContext } from "react-router";
 import { useNavigate } from "react-router";
 
-//Ett alternativ i formuläret
-type SelectOption = {
-    label: string;
-    value: string;
-}
 
 //Omvandlar API-katogerier till formuläralternativ
 function makeOptions (categories: Category[]) : SelectOption[]{
-    return categories.map(category =>({
-            label: category.name,
-            value: String(category.id),
-        }));
+  return categories.map(category =>({
+      label: category.name,
+           value: String(category.id),
+  }));
 }
 
 const amountOptions: SelectOption[] = [
@@ -30,19 +25,16 @@ const amountOptions: SelectOption[] = [
 ];
 
 const difficultyOptions: SelectOption[] = [
-    { label: "Lätt", value: "easy" },
-    { label: "Medel", value: "medium" },
-    { label: "Svår", value: "hard" },
+    { label: "Easy", value: "easy" },
+    { label: "Medium", value: "medium" },
+    { label: "Hard", value: "hard" },
 ];
 function QuizSettings() {
 
-    //hämtning sköts av hooken i fetchQuestions
-    const categories =
-        useFetchCategories("https://opentdb.com/api_category.php");
+    //hämtning
+    const categories = useFetchCategories("https://opentdb.com/api_category.php");
 
-    const categoryOptions: SelectOption[] = [
-        {label: "Alla kategorier", value: "all"}, ...makeOptions(categories),
-    ];
+    const categoryOptions = makeOptions(categories);
 
     //formuläret börjar utan valda alternativ
     const [category, setCategory] = useState<SelectOption | null>(null);
@@ -52,14 +44,14 @@ function QuizSettings() {
 
     //uppdatera state i App
     const { setQuestions, setAnswers } = useOutletContext<QuizContextValue>();
-
     const navigate = useNavigate();
-    //hanterar ladning och hämtningsfel i formuläret
+
+    //hanterar laddning och hämtningsfel i formuläret
     const [isLoading, setIsLoading] = useState(false);
     const [fetchError, setFetchError] = useState<string | null>(null);
 
    async function handleSubmit(event: React.SubmitEvent){
-        event.preventDefault(); //hindra formuläret att ladda om sidan
+        event.preventDefault();
 
         if(isLoading) return;
 
@@ -68,25 +60,12 @@ function QuizSettings() {
             setShowError(true);
             return;
         }
-        const selectedDifficulty = difficulty.value;
-
-        // Kontrollera att svårighetsgraden passar QuizOptions
-        if (
-            selectedDifficulty !== "easy" &&
-            selectedDifficulty !== "medium" &&
-            selectedDifficulty !== "hard"
-        ) {
-            return;
-        }
 
         // Omvandla formulärvalen till inställningar för API:et
         const quizOptions: QuizOptions = {
-            category:
-                category.value === "all"
-                    ? null
-                    : Number(category.value),
+            category: Number(category.value),
             amount: Number(amount.value),
-            difficulty: selectedDifficulty,
+            difficulty: difficulty.value,
         };
 
         setShowError(false);
@@ -104,8 +83,7 @@ function QuizSettings() {
             setFetchError(
                 error instanceof Error
                     ? error.message
-                    : "Frågorna kunde inte hämtas. Försök igen."
-            );
+                    : "Questions could not be loaded. Try again.");
         } finally {
             setIsLoading(false);
         }
@@ -113,17 +91,17 @@ function QuizSettings() {
     return (
     <Card className="mx-auto mt-4 w-full max-w-lg p-6">
         <CardHeader>
-            <CardTitle>Quizets inställningar</CardTitle>
+            <CardTitle>Quiz settings</CardTitle>
         </CardHeader>
 
         <form noValidate onSubmit={handleSubmit} className="space-y-6">
             <Select value={category} onValueChange={setCategory}>
 
-                <SelectTrigger aria-label="Välj kategori">
-                    <SelectValue placeholder="Välj kategori" />
+                <SelectTrigger aria-label="Choose category">
+                    <SelectValue placeholder="Choose category" />
                 </SelectTrigger>
 
-                <SelectContent>
+                <SelectContent className= "w-[420px]">
                     {categoryOptions.map(option => (
                         <SelectItem key={option.value} value={option}>
                             {option.label}
@@ -133,8 +111,8 @@ function QuizSettings() {
             </Select>
 
             <Select value={amount} onValueChange={setAmount}>
-                <SelectTrigger aria-label="Välj antal frågor">
-                    <SelectValue placeholder="Välj antal frågor" />
+                <SelectTrigger aria-label="Select number of questions">
+                    <SelectValue placeholder="Select number of questions" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -147,8 +125,8 @@ function QuizSettings() {
             </Select>
 
             <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger aria-label="Välj svårighetsgrad">
-                    <SelectValue placeholder="Välj svårighetsgrad" />
+                <SelectTrigger aria-label="Select Difficulty">
+                    <SelectValue placeholder="Select Difficulty" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -162,15 +140,14 @@ function QuizSettings() {
 
             {showError && (
                 <p role="alert">
-                    Välj kategori, antal frågor och
-                    svårighetsgrad.
+                    Please complete all fields
                 </p>
             )}
             {fetchError && (
                 <p role="alert">{fetchError}</p>
             )}
             <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Hämtar frågor..." : "Starta quiz"}
+                {isLoading ? "Loading..." : "Start quiz"}
             </Button>
         </form>
     </Card>

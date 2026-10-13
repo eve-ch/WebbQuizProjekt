@@ -1,6 +1,6 @@
 import { useOutletContext, useNavigate } from "react-router";
 import { useState } from "react";
-import type { QuizQuestion, UserAnswer, QuizContextValue } from "./quiz-types";
+import type {UserAnswer, QuizContextValue } from "./quiz-types";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -12,14 +12,20 @@ function QuizPage() {
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null); //inget svar till en början
     const currentQuestion = questions[currentQuestionIndex]; //ändra senare
 
-    if (!currentQuestion) {return <p>Inga frågor tillgängliga.</p>;}
+    if (!currentQuestion) {
+        return <div className="flex min-h-[60vh] items-center justify-center px-6" >
+            <p className="text-center text-2xl font-semibold text-foreground">No questions are available select settings first</p>
+        </div>
+    }
 
     function nextQuestion(){
         if(selectedAnswer === null){return;} //gör inget om en knapp inte valts
 
         const newAnswer: UserAnswer = {questionIndex: currentQuestionIndex, selectedAnswer: selectedAnswer};
 
-        setAnswers([...answers, newAnswer]);
+        const otherAnswers = answers.filter(answers => answers.questionIndex !== currentQuestionIndex);
+
+        setAnswers([...otherAnswers, newAnswer]);
 
         if(currentQuestionIndex < questions.length - 1){ //Om det finns fler frågor
             setCurrentQuestionIndex(currentQuestionIndex + 1); //gå till nästa fråga
@@ -38,7 +44,7 @@ function QuizPage() {
 
             <CardContent className="space-y-6">
                 <p>
-                    Fråga {currentQuestionIndex + 1} av {questions.length}
+                    Question {currentQuestionIndex + 1} of {questions.length}
                 </p>
 
                 <h3>{currentQuestion.question}</h3>
@@ -61,13 +67,8 @@ function QuizPage() {
                     ))}
                 </div>
 
-                <Button
-                    type="button"
-                    className="w-full"
-                    disabled={selectedAnswer === null}
-                    onClick={nextQuestion}
-                >
-                    {currentQuestionIndex === questions.length - 1 ? "visa resultat" : "Nästa fråga"}
+                <Button type="button" className="w-full" disabled={selectedAnswer === null} onClick={nextQuestion}>
+                    {currentQuestionIndex === questions.length - 1 ? "Show result" : "Next question"}
                 </Button>
             </CardContent>
         </Card>

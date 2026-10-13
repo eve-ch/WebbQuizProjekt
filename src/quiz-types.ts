@@ -1,9 +1,15 @@
 // Användarens val i startformuläret
 export type QuizOptions = {
     category: number | null;
-    difficulty: "easy" | "medium" | "hard";
+    difficulty: string;
     amount: number;
 };
+
+//Ett alternativ i formuläret
+export type SelectOption = {
+    label: string;
+    value: string;
+}
 
 // De fält vi behöver från en fråga i API
 export type Question = {
@@ -40,4 +46,8 @@ export type QuizContextValue = {
 export type Category = {
     id: number;
     name: string;
+};
+
+export type CategoryApiResponse = {
+    trivia_categories: Category[];
 };

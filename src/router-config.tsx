@@ -30,7 +30,7 @@ const routerConfig: RouteObject[] = [
 ];
 
 function PageNotFound (){
-    return <h2> Sidan kunde inte hittas</h2>;
+    return <h2> Page not found</h2>;
 }
 const router = createBrowserRouter(routerConfig);
 
